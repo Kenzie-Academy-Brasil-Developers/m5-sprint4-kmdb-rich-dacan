@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView, Request, Response, status
 
-from accounts.serializer import LoginSerializer
+from accounts.serializer import LoginSerializer, RegisterSerializer
 
 
-class LoginView(APIView):
+class CredentialsView(APIView):
     def post(self, request: Request) -> Response:
 
         serializer = LoginSerializer(data=request.data)
@@ -24,3 +24,13 @@ class LoginView(APIView):
             )
 
         return Response({"detail": f"Welcome {user.username}"})
+
+
+class RegisterView(APIView):
+    def post(self, request: Request) -> Response:
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data, status.HTTP_201_CREATED)
