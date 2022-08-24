@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView, Request, Response, status
 
 from accounts.serializer import LoginSerializer, RegisterSerializer
@@ -16,14 +17,19 @@ class CredentialsView(APIView):
         #     password=serializer.validated_data["password"],
         # )
 
-        user = authenticate(**serializer.validated_data)
+        user = authenticate(
+            username=serializer.validated_data["username"],
+            password=serializer.validated_data["password"],
+        )
 
-        if not user:
-            return Response(
-                {"detail": "Invalid credentials"}, status.HTTP_404_NOT_FOUND
-            )
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
 
-        return Response({"detail": f"Welcome {user.username}"})
+            return Response({"token": token.key})
+
+        return Response(
+            {"detail": "invalid username or password"}, status.HTTP_400_BAD_REQUEST
+        )
 
 
 class RegisterView(APIView):
