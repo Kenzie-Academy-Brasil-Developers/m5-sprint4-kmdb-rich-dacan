@@ -44,9 +44,7 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
 ]
 
-MY_APPS = [
-    "accounts",
-]
+MY_APPS = ["accounts", "movies", "genres", "reviews"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
 
