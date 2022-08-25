@@ -17,3 +17,9 @@ class Review(models.Model):
         choices=RecommendationChoices.choices,
         default=RecommendationChoices.DEFAULT,
     )
+    movie_id = models.ForeignKey(
+        "movies.Movie", on_delete=models.CASCADE, related_name="reviews"
+    )
+    critic_id = models.ForeignKey(
+        "accounts.Accounts", on_delete=models.CASCADE, related_name="reviews"
+    )
