@@ -4,7 +4,7 @@ from rest_framework.validators import UniqueValidator
 from accounts.models import Accounts
 
 
-class RegisterSerializer(serializers.Serializer):
+class AccountSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(
         max_length=20, validators=[UniqueValidator(queryset=Accounts.objects.all())]
