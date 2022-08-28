@@ -19,10 +19,9 @@ class MovieSerializer(serializers.Serializer):
 
         genres = validated_data.pop("genres")
 
-        movie_obj = Movie.objects.get_or_create(**validated_data)
+        genres_data = [Genre.objects.get_or_create(**genre)[0] for genre in genres]
 
-        for genre in genres:
-            genre, _ = Genre.objects.get_or_create(**genre)
-            movie_obj.genres.add(genres)
+        movie = Movie.objects.create(**validated_data)
+        movie.genres.set(genres_data)
 
-        return movie_obj
+        return movie
