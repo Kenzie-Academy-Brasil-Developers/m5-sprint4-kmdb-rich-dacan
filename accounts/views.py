@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView, Request, Response, status
 
@@ -43,7 +44,7 @@ class LoginView(APIView):
         )
 
 
-class RetrieveAccountsView(APIView):
+class RetrieveAccountsView(APIView, PageNumberPagination):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminUser]
 
@@ -51,9 +52,11 @@ class RetrieveAccountsView(APIView):
 
         accounts = Accounts.objects.all()
 
-        serializer = AccountSerializer(accounts, many=True)
+        page = self.paginate_queryset(accounts, request, view=self)
 
-        return Response(serializer.data, status.HTTP_200_OK)
+        serializer = AccountSerializer(page, many=True)
+
+        return self.get_paginated_response(serializer.data)
 
 
 class RetrieveAccountView(APIView):
