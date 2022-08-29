@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView, Response, status
 
 from .models import Movie
@@ -7,16 +8,17 @@ from .permissions import IsAdminOrSafe
 from .serializer import MovieSerializer
 
 
-class MovieView(APIView):
+class MovieView(APIView, PageNumberPagination):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminOrSafe]
 
     def get(self, request):
         movies = Movie.objects.all()
+        page = self.paginate_queryset(movies, request, view=self)
 
-        serializer = MovieSerializer(movies, many=True)
+        serializer = MovieSerializer(page, many=True)
 
-        return Response(serializer.data, status.HTTP_200_OK)
+        return self.get_paginated_response(serializer.data)
 
     def post(self, request):
         serializer = MovieSerializer(data=request.data)
@@ -44,3 +46,14 @@ class MovieDetailView(APIView):
         movie.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def patch(self, request, movie_id):
+        movie = get_object_or_404(Movie, id=movie_id)
+
+        serializer = MovieSerializer(movie, request.data, partial=True)
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data, status.HTTP_200_OK)

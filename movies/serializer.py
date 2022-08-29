@@ -25,3 +25,21 @@ class MovieSerializer(serializers.Serializer):
         movie.genres.set(genres_data)
 
         return movie
+
+    def update(self, genre_db, validated_data):
+
+        for key, value in validated_data.items():
+
+            if key == "genres":
+                genres_data = [
+                    Genre.objects.get_or_create(**genre)[0] for genre in value
+                ]
+
+                genre_db.genres.set(genres_data)
+                continue
+
+            setattr(genre_db, key, value)
+
+        genre_db.save()
+
+        return genre_db
